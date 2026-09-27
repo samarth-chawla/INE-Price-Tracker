@@ -1,0 +1,678 @@
+/* ── Reset & base ─────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+  background: #f5f6fa;
+  color: #1a1a2e;
+  line-height: 1.5;
+}
+
+/* ── Layout ───────────────────────────────────────────────────── */
+.app {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+
+.app-header {
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #e0e3ef;
+  padding-bottom: 1.25rem;
+}
+
+.app-header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #0d1b6e;
+}
+
+.subtitle {
+  margin-top: 0.35rem;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.app-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ── Search bar ───────────────────────────────────────────────── */
+.search-bar {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.search-bar input {
+  flex: 1;
+  padding: 0.65rem 0.9rem;
+  font-size: 1rem;
+  border: 1.5px solid #c5c9d9;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-bar input:focus {
+  border-color: #0d1b6e;
+}
+
+.search-bar input:disabled {
+  background: #eee;
+  cursor: not-allowed;
+}
+
+.search-bar button {
+  padding: 0.65rem 1.4rem;
+  font-size: 1rem;
+  font-weight: 600;
+  background: #0d1b6e;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+  white-space: nowrap;
+}
+
+.search-bar button:hover:not(:disabled) {
+  background: #162491;
+}
+
+.search-bar button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Loading ──────────────────────────────────────────────────── */
+.loading {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid #c5c9d9;
+  border-top-color: #0d1b6e;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Alerts ───────────────────────────────────────────────────── */
+.alert {
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.alert-error {
+  background: #fff0f0;
+  border: 1.5px solid #f5a0a0;
+  color: #c0392b;
+}
+
+/* ── Results ──────────────────────────────────────────────────── */
+.results-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.results-heading {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #444;
+}
+
+.no-results {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.product-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+/* ── Product card ─────────────────────────────────────────────── */
+.product-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: #fff;
+  border: 1.5px solid #e0e3ef;
+  border-radius: 8px;
+  padding: 1rem 1.1rem;
+  transition: box-shadow 0.15s;
+}
+
+.product-card:hover {
+  box-shadow: 0 2px 10px rgba(13, 27, 110, 0.08);
+}
+
+.product-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.product-name {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #0d1b6e;
+  margin-bottom: 0.3rem;
+}
+
+.product-meta {
+  font-size: 0.82rem;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.label {
+  font-weight: 600;
+  color: #444;
+}
+
+.btn-select {
+  padding: 0.5rem 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: #fff;
+  color: #0d1b6e;
+  border: 1.5px solid #0d1b6e;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.btn-select:hover {
+  background: #0d1b6e;
+  color: #fff;
+}
+
+/* ── Modal ───────────────────────────────────────────── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 20, 80, 0.45);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-box {
+  background: #fff;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.28);
+  outline: none;
+  animation: modal-in 0.18s ease-out;
+}
+
+@keyframes modal-in {
+  from { opacity: 0; transform: translateY(-10px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+/* ── Selected-product panel (inside modal) ─────────────────── */
+.sp-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.sp-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.4rem 1.5rem 1rem;
+  border-bottom: 1.5px solid #e8eaf5;
+}
+
+.sp-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.sp-category {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #7a82b0;
+}
+
+.sp-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0d1b6e;
+  line-height: 1.3;
+}
+
+.sp-close {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: #888;
+  cursor: pointer;
+  padding: 0.25rem 0.4rem;
+  border-radius: 5px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: background 0.12s, color 0.12s;
+}
+
+.sp-close:hover {
+  background: #f0f0f5;
+  color: #333;
+}
+
+.sp-meta {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.3rem 1.1rem;
+  font-size: 0.875rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1.5px solid #e8eaf5;
+}
+
+.sp-meta dt {
+  font-weight: 600;
+  color: #555;
+}
+
+.sp-meta dd {
+  color: #222;
+  overflow-wrap: break-word;
+}
+
+.sp-meta a {
+  color: #0d1b6e;
+  word-break: break-all;
+}
+
+/* ── Price check section (inside modal) ──────────────────── */
+.sp-price-section {
+  padding: 1.1rem 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.sp-section-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0d1b6e;
+  margin-bottom: -0.2rem;
+}
+
+.sp-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.sp-options-label {
+  font-size: 0.85rem;
+  color: #444;
+}
+
+.sp-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.sp-chip {
+  padding: 0.42rem 1rem;
+  border: 1.5px solid #c5c9d9;
+  border-radius: 20px;
+  background: #f5f6fa;
+  color: #444;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: border-color 0.13s, background 0.13s, color 0.13s;
+}
+
+.sp-chip:hover:not(:disabled) {
+  border-color: #0d1b6e;
+  color: #0d1b6e;
+}
+
+.sp-chip.sp-chip--active {
+  background: #0d1b6e;
+  color: #fff;
+  border-color: #0d1b6e;
+}
+
+.sp-chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sp-hint {
+  font-size: 0.8rem;
+  color: #9099c0;
+  font-style: italic;
+}
+
+.sp-check-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.sp-btn-check {
+  width: 100%;
+  padding: 0.72rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  background: #0d1b6e;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+}
+
+.sp-btn-check:hover:not(:disabled) {
+  background: #162491;
+}
+
+.sp-btn-check:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.sp-checking-note {
+  font-size: 0.8rem;
+  color: #666;
+  font-style: italic;
+}
+
+.sp-price-error {
+  margin-top: 0;
+}
+
+/* ── Price result ─────────────────────────────────────────── */
+.price-result {
+  margin-top: 1rem;
+  background: #f0f9f0;
+  border: 1.5px solid #7bc97b;
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+}
+
+.price-result h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #276228;
+  margin-bottom: 0.75rem;
+}
+
+.price-value-display {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1a3a1a;
+  margin-bottom: 0.6rem;
+}
+
+.price-meta {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.25rem 0.85rem;
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+}
+
+.price-meta dt {
+  font-weight: 600;
+  color: #444;
+}
+
+.price-meta dd {
+  color: #222;
+}
+
+.price-disclaimer {
+  font-size: 0.78rem;
+  color: #888;
+  font-style: italic;
+}
+
+.price-attempts {
+  font-size: 0.8rem;
+  color: #5a7a5a;
+  margin-top: 0.3rem;
+}
+
+/* ── Compact loading row (inside modal sections) ───────────────── */
+.loading.loading-sm {
+  font-size: 0.88rem;
+  color: #555;
+  gap: 0.45rem;
+}
+
+/* ── Accessibility ────────────────────────────────────────── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ── Track-option button (inside product modal) ────────────── */
+.sp-btn-track {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: #fff;
+  color: #0d1b6e;
+  border: 1.5px solid #0d1b6e;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, opacity 0.15s;
+}
+
+.sp-btn-track:hover:not(:disabled) {
+  background: #0d1b6e;
+  color: #fff;
+}
+
+.sp-btn-track:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.sp-track-msg {
+  font-size: 0.85rem;
+  padding: 0.55rem 0.8rem;
+  border-radius: 6px;
+}
+
+.sp-track-msg--ok {
+  background: #f0f9f0;
+  border: 1.5px solid #7bc97b;
+  color: #276228;
+}
+
+.sp-track-msg--info {
+  background: #f0f4ff;
+  border: 1.5px solid #a0b4f5;
+  color: #0d1b6e;
+}
+
+.sp-track-msg--error {
+  background: #fff0f0;
+  border: 1.5px solid #f5a0a0;
+  color: #c0392b;
+}
+
+/* ── Tracked products dashboard ────────────────────────────── */
+.tracked-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  background: #fff;
+  border: 1.5px solid #e0e3ef;
+  border-radius: 8px;
+  padding: 1rem 1.1rem;
+}
+
+.tracked-card:hover {
+  box-shadow: 0 2px 10px rgba(13, 27, 110, 0.08);
+}
+
+.tracked-current {
+  font-size: 0.9rem;
+  color: #222;
+  margin-top: 0.3rem;
+}
+
+.tracked-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.btn-ghost {
+  padding: 0.5rem 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: #fff;
+  color: #444;
+  border: 1.5px solid #c5c9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s, color 0.15s, opacity 0.15s;
+}
+
+.btn-ghost:hover:not(:disabled) {
+  border-color: #0d1b6e;
+  color: #0d1b6e;
+}
+
+.btn-ghost:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── History table ─────────────────────────────────────────── */
+.hist-wrap {
+  overflow-x: auto;
+  border: 1.5px solid #e0e3ef;
+  border-radius: 8px;
+}
+
+.hist-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.83rem;
+  min-width: 560px;
+}
+
+.hist-table th,
+.hist-table td {
+  text-align: left;
+  padding: 0.5rem 0.65rem;
+  border-bottom: 1px solid #eef0f7;
+  vertical-align: top;
+}
+
+.hist-table thead th {
+  background: #f0f2fa;
+  color: #0d1b6e;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.hist-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.hist-time {
+  white-space: nowrap;
+}
+
+.hist-err {
+  max-width: 220px;
+  overflow-wrap: break-word;
+  color: #666;
+}
+
+.hist-empty {
+  font-size: 0.88rem;
+  color: #666;
+  font-style: italic;
+}
+
+.hist-row--failed {
+  background: #fff8f8;
+}
+
+.hist-row--retried {
+  background: #fffdf5;
+}
+
+.pill {
+  display: inline-block;
+  padding: 0.1rem 0.55rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.pill--success {
+  background: #e2f3e2;
+  color: #276228;
+}
+
+.pill--retried {
+  background: #fdf0d5;
+  color: #8a5a00;
+}
+
+.pill--failed {
+  background: #fde2e2;
+  color: #c0392b;
+}
