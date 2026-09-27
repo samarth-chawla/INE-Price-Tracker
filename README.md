@@ -8,14 +8,32 @@ A full-stack product search and price tracking tool targeting the [INE mock stor
 
 Phase 2 adds option selection and live price checking for a selected product, using Playwright to interact with the store's price-loading flow.
 
-### Additional setup (Phase 2)
+### Browser setup (Playwright)
 
-> Playwright uses the system Chrome installation. No separate browser download is needed on Windows
-> if Chrome is installed at `C:/Program Files/Google/Chrome/Application/chrome.exe`.
-> To use a different browser, set the env var:
-> ```
-> PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=C:/path/to/chrome.exe
-> ```
+The scraper (`backend/scraper/priceScraper.js`) resolves its browser binary
+in this order — no scraping logic depends on which entry wins:
+
+1. `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` — optional override; when set, its
+   value is passed straight to Playwright's `launch({ executablePath })`.
+   The code does not validate it; an invalid path fails at launch.
+2. Windows local dev — when the variable is unset and Chrome exists at the
+   standard install location, the installed system Chrome is used.
+3. Everywhere else — `executablePath` is omitted and Playwright uses its own
+   bundled Chromium (requires a one-time `npx playwright install chromium`).
+
+So on Windows with Chrome installed, no extra download is needed; on any
+machine without it (including Linux), install Playwright's Chromium once:
+
+```
+cd backend
+npx playwright install chromium
+```
+
+Production (Render, Docker): the `backend/Dockerfile` already runs
+`npx playwright install --with-deps chromium` during the image build, which
+provides both the bundled Chromium and its OS libraries. That is sufficient
+— do NOT set `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` on Render and do NOT
+configure any Windows `C:\Program Files\…` path there.
 
 ### Why Playwright is required
 
