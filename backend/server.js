@@ -1,3 +1,7 @@
+// Env loading: repo-root `.env` first (deployment format), then
+// `backend/.env` as a fallback so existing local setups keep working.
+// Neither file overrides variables already present in the environment.
+require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');

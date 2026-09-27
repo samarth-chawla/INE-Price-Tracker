@@ -191,7 +191,11 @@ async function scrapePrice(productId, optionLabel, hooks = {}) {
     }
 
     const launchOpts = {
-      headless: true,
+      // Demo-only visibility switch: PLAYWRIGHT_HEADED=1 opens a visible
+      // browser window. Unset (production default) stays headless.
+      // Nothing else — retries, timeouts, consent handling, logging —
+      // changes in headed mode.
+      headless: !/^(1|true|yes)$/i.test(process.env.PLAYWRIGHT_HEADED || ''),
       args: [
         '--disable-blink-features=AutomationControlled',
         '--no-sandbox',
@@ -200,6 +204,8 @@ async function scrapePrice(productId, optionLabel, hooks = {}) {
       ],
     };
     if (executablePath) launchOpts.executablePath = executablePath;
+
+    if (!launchOpts.headless) console.log('  Headed demo mode: visible browser window.');
 
     browser = await chromium.launch(launchOpts);
 
