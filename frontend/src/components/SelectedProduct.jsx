@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import PriceResult from './PriceResult.jsx';
 import { api } from '../utils/api.js';
 
-export default function SelectedProduct({ product, onClose, onTracked }) {
+export default function SelectedProduct({ product, onClose, onTracked, trackedOptions }) {
   // ── Options state ────────────────────────────────────────────────────────
   const [options, setOptions] = useState(null);      // null = not yet fetched
   const [optionAxis, setOptionAxis] = useState('');  // e.g. "Kit"
@@ -105,11 +105,11 @@ export default function SelectedProduct({ product, onClose, onTracked }) {
       });
       const data = await res.json();
       if (res.status === 409) {
-        setTrackMsg({ kind: 'info', text: 'Already tracked — this product + option is on your list.' });
+        setTrackMsg({ kind: 'info', text: 'Already tracked - this product + option is on your list.' });
         return;
       }
       if (!res.ok) throw new Error(data.error || `Server returned ${res.status}`);
-      setTrackMsg({ kind: 'ok', text: `Tracking ${product.name} — ${selectedOption.label}.` });
+      setTrackMsg({ kind: 'ok', text: `Tracking ${product.name} - ${selectedOption.label}.` });
       if (onTracked) onTracked();
     } catch (err) {
       setTrackMsg({ kind: 'error', text: err.message || 'Could not add to tracking.' });
@@ -193,6 +193,18 @@ export default function SelectedProduct({ product, onClose, onTracked }) {
               </div>
             )}
 
+            {/* Already-tracked options for this product */}
+            {trackedOptions && trackedOptions.length > 0 && (
+              <div className="sp-tracked-opts">
+                <p className="sp-options-label">Tracked options:</p>
+                <ul>
+                  {trackedOptions.map((label) => (
+                    <li key={label}>• {label}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             {/* Check Price button */}
             {(selectedOption || options.length === 0) && (
               <div className="sp-check-block">
@@ -203,7 +215,7 @@ export default function SelectedProduct({ product, onClose, onTracked }) {
                 >
                   {checking
                     ? '⏳ Checking price…'
-                    : `Check price${selectedOption ? ` — ${selectedOption.label}` : ''}`}
+                    : `Check price${selectedOption ? ` - ${selectedOption.label}` : ''}`}
                 </button>
                 {selectedOption && (
                   <button
@@ -211,7 +223,7 @@ export default function SelectedProduct({ product, onClose, onTracked }) {
                     onClick={handleTrack}
                     disabled={checking || tracking}
                   >
-                    {tracking ? 'Adding…' : `Track this option — ${selectedOption.label}`}
+                    {tracking ? 'Adding…' : `Track this option - ${selectedOption.label}`}
                   </button>
                 )}
                 {trackMsg && (

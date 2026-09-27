@@ -1,99 +1,101 @@
-import { useState } from 'react';
-import SearchBar from './components/SearchBar.jsx';
-import ProductList from './components/ProductList.jsx';
+import { useCallback, useEffect, useState } from 'react';
+import CataloguePage from './components/CataloguePage.jsx';
+import TrackedPage from './components/TrackedPage.jsx';
 import SelectedProduct from './components/SelectedProduct.jsx';
-import TrackedSection from './components/TrackedSection.jsx';
 import Modal from './components/Modal.jsx';
 import { api } from './utils/api.js';
 
+function routeFromHash() {
+  return window.location.hash === '#/tracked' ? 'tracked' : 'catalogue';
+}
+
 export default function App() {
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState(null);   // null = no search yet
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [view, setView] = useState(routeFromHash());
   const [selected, setSelected] = useState(null); // product shown in the modal
-  const [trackedRefresh, setTrackedRefresh] = useState(0); // bump to reload tracked list
+  const [tracked, setTracked] = useState([]);     // tracked list (header count + card indicators)
+  const [trackedRefresh, setTrackedRefresh] = useState(0);
 
-  async function handleSearch(term) {
-    const trimmed = term.trim();
-    if (!trimmed) {
-      setError('Please enter a search term.');
-      return;
+  // Tiny hash routing: #/ catalogue, #/tracked tracked page.
+  useEffect(() => {
+    function onHash() {
+      setView(routeFromHash());
     }
-    if (trimmed.length < 2) {
-      setError('Search term must be at least 2 characters.');
-      return;
-    }
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
 
-    setLoading(true);
-    setError(null);
-    setResults(null);
-    setSelected(null); // close any open modal when a new search starts
-
+  const loadTracked = useCallback(async () => {
     try {
-      const res = await fetch(api(`/api/products/search?q=${encodeURIComponent(trimmed)}`));
+      const res = await fetch(api('/api/tracked'));
       const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error || 'Something went wrong. Please try again.');
-        return;
-      }
-
-      setResults(data.results);
+      if (res.ok) setTracked(data.results || []);
     } catch {
-      setError('Could not reach the server. Make sure the backend is running.');
-    } finally {
-      setLoading(false);
+      // Header count stays stale rather than breaking the page.
     }
+  }, []);
+
+  useEffect(() => {
+    loadTracked();
+  }, [loadTracked, trackedRefresh]);
+
+  // store product id → number of tracked options (catalogue indicators).
+  const trackedCounts = {};
+  for (const t of tracked) {
+    trackedCounts[t.storeProductId] = (trackedCounts[t.storeProductId] || 0) + 1;
   }
 
-  // Opens the modal — search results stay visible underneath
   function handleSelect(product) {
     setSelected(product);
   }
 
-  // Closes the modal — search results are still there, no re-search needed
   function handleClose() {
     setSelected(null);
   }
 
+  function handleTracked() {
+    setTrackedRefresh((k) => k + 1); // refresh header count + card indicators
+  }
+
+  function goTracked() {
+    window.location.hash = '#/tracked';
+  }
+
+  function goCatalogue() {
+    window.location.hash = '#/';
+  }
+
+  const trackedOptions = selected
+    ? tracked.filter((t) => t.storeProductId === selected.id).map((t) => t.selectedOption)
+    : [];
+
   return (
     <div className="app">
-      <header className="app-header">
-        <h1>INE Product Price Tracker</h1>
-        <p className="subtitle">
-          Search for a product, track an option, then check its live price history.
-        </p>
+      <header className="app-header app-header--row">
+        <div>
+          <h1>INE Product Price Tracker</h1>
+          <p className="subtitle">
+            Search for a product, track an option, then check its live price history.
+          </p>
+        </div>
+        <button className="btn-header-tracked" onClick={goTracked}>
+          View Tracked ({tracked.length})
+        </button>
       </header>
 
       <main className="app-main">
-        <SearchBar
-          query={query}
-          onChange={setQuery}
-          onSearch={() => handleSearch(query)}
-          loading={loading}
-        />
-
-        {error && (
-          <div className="alert alert-error" role="alert">
-            {error}
-          </div>
+        {view === 'tracked' ? (
+          <TrackedPage
+            refreshKey={trackedRefresh}
+            count={tracked.length}
+            onBack={goCatalogue}
+            onBrowse={goCatalogue}
+          />
+        ) : (
+          <CataloguePage
+            trackedCounts={trackedCounts}
+            onSelect={handleSelect}
+          />
         )}
-
-        {loading && (
-          <div className="loading" role="status">
-            <span className="spinner" aria-hidden="true" />
-            Searching the INE store…
-          </div>
-        )}
-
-        {/* Search results remain visible even when a product is selected */}
-        {!loading && results !== null && (
-          <ProductList results={results} query={query} onSelect={handleSelect} />
-        )}
-
-        {/* Tracked products dashboard — always visible, refreshes on track */}
-        <TrackedSection refreshKey={trackedRefresh} />
       </main>
 
       {/* Modal opens on top of everything — backdrop click or Escape closes it */}
@@ -102,7 +104,8 @@ export default function App() {
           <SelectedProduct
             product={selected}
             onClose={handleClose}
-            onTracked={() => setTrackedRefresh((k) => k + 1)}
+            onTracked={handleTracked}
+            trackedOptions={trackedOptions}
           />
         </Modal>
       )}

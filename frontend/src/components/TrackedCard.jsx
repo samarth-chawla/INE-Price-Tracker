@@ -49,13 +49,13 @@ export default function TrackedCard({ product, history, historyLoading, historyE
         </p>
         <p className="tracked-current">
           <span className="label">Current price:</span>{' '}
-          {latestSuccess ? formatPrice(latestSuccess.price) : '—'}
+          {latestSuccess ? formatPrice(latestSuccess.price) : '-'}
           {' · '}
           <span className="label">Stock:</span>{' '}
-          {latestSuccess ? (latestSuccess.stock ?? '—') : '—'}
+          {latestSuccess ? (latestSuccess.stock ?? '-') : '-'}
         </p>
         {!historyLoading && !historyError && !latestSuccess && (
-          <p className="sp-hint">No successful scrape yet — price/stock not available.</p>
+          <p className="sp-hint">No successful scrape yet - price/stock not available.</p>
         )}
         {historyError && (
           <p className="sp-hint">Could not load history: {historyError}</p>

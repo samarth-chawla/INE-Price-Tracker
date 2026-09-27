@@ -1,25 +1,33 @@
-export default function ProductCard({ product, onSelect }) {
+// Catalogue product card: brand/category eyebrow, name, SKU/ID,
+// subtle tracked-options indicator, View Product action.
+// No scraped price here — price belongs to a tracked option, not the card.
+export default function ProductCard({ product, trackedCount, onSelect }) {
   return (
-    <div className="product-card">
-      <div className="product-info">
-        <p className="product-name">{product.name}</p>
-        <p className="product-meta">
-          <span className="label">ID:</span> {product.id}
+    <div className="catalog-card">
+      <p className="catalog-eyebrow">
+        {product.brand} · {product.category}
+      </p>
+      <p className="catalog-name">{product.name}</p>
+      <p className="catalog-meta">
+        <span className="label">SKU:</span> {product.sku}
+      </p>
+      <p className="catalog-meta">
+        <span className="label">ID:</span> {product.id}
+      </p>
+      {trackedCount > 0 && (
+        <p className="catalog-tracked" aria-label={`${trackedCount} tracked options`}>
+          <span className="dot" aria-hidden="true" /> Tracked options: {trackedCount}
         </p>
-        <p className="product-meta">
-          <span className="label">Brand:</span> {product.brand}
-        </p>
-        <p className="product-meta">
-          <span className="label">Category:</span> {product.category}
-        </p>
+      )}
+      <div className="catalog-foot">
+        <button
+          className="btn-select"
+          onClick={() => onSelect(product)}
+          aria-label={`View ${product.name}`}
+        >
+          View Product →
+        </button>
       </div>
-      <button
-        className="btn-select"
-        onClick={() => onSelect(product)}
-        aria-label={`Select ${product.name}`}
-      >
-        Select
-      </button>
     </div>
   );
 }

@@ -23,7 +23,7 @@ export default function PriceResult({ result }) {
         <p className="price-attempts">Loaded in {result.attempts} attempts</p>
       )}
       <p className="price-disclaimer">
-        Price sourced from the INE mock store. Not saved — tracking not yet implemented.
+        Price sourced from the INE mock store. Not saved - tracking not yet implemented.
       </p>
     </div>
   );

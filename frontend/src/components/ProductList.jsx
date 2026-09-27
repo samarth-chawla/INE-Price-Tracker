@@ -1,28 +1,26 @@
 import ProductCard from './ProductCard.jsx';
 
-export default function ProductList({ results, query, onSelect }) {
-  if (results.length === 0) {
+// Responsive grid of catalogue/search cards. trackedCounts maps
+// store product id → number of tracked options (for the card indicator).
+export default function ProductList({ products, trackedCounts, onSelect, emptyMessage }) {
+  if (!products || products.length === 0) {
     return (
-      <section className="results-section">
-        <p className="no-results">
-          No products found for <strong>"{query}"</strong>. Try a different name, brand, or category.
-        </p>
-      </section>
+      <p className="no-results">
+        {emptyMessage || 'No products to show.'}
+      </p>
     );
   }
 
   return (
-    <section className="results-section">
-      <h2 className="results-heading">
-        {results.length} result{results.length !== 1 ? 's' : ''} for &ldquo;{query}&rdquo;
-      </h2>
-      <ul className="product-list">
-        {results.map((product) => (
-          <li key={product.id}>
-            <ProductCard product={product} onSelect={onSelect} />
-          </li>
-        ))}
-      </ul>
-    </section>
+    <div className="catalog-grid">
+      {products.map((product) => (
+        <ProductCard
+          key={product.id}
+          product={product}
+          trackedCount={trackedCounts?.[product.id] || 0}
+          onSelect={onSelect}
+        />
+      ))}
+    </div>
   );
 }

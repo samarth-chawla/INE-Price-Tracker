@@ -7,7 +7,7 @@ import { api } from '../utils/api.js';
 // price/stock + the history table). Check Now uses POST /:id/check.
 const HISTORY_PREVIEW_LIMIT = 50;
 
-export default function TrackedSection({ refreshKey }) {
+export default function TrackedSection({ refreshKey, showHeading = true, onBrowse }) {
   const [products, setProducts] = useState(null); // null = not loaded yet
   const [loadError, setLoadError] = useState(null);
   const [histories, setHistories] = useState({}); // id -> { loading, error, rows }
@@ -65,7 +65,7 @@ export default function TrackedSection({ refreshKey }) {
 
   return (
     <section className="results-section" aria-label="Tracked products">
-      <h2 className="results-heading">Tracked Products</h2>
+      {showHeading && <h2 className="results-heading">Tracked Products</h2>}
 
       {loadError && (
         <div className="alert alert-error" role="alert">{loadError}</div>
@@ -83,9 +83,17 @@ export default function TrackedSection({ refreshKey }) {
       )}
 
       {products !== null && products.length === 0 && !loadError && (
-        <p className="no-results">
-          Nothing tracked yet. Search above, pick an option, and add it to tracking.
-        </p>
+        <div className="empty-tracked">
+          <p className="no-results">No products tracked yet.</p>
+          <p className="no-results">
+            Track a product option from the catalogue to start monitoring prices and stock.
+          </p>
+          {onBrowse && (
+            <button className="btn-select" onClick={onBrowse}>
+              Browse Products
+            </button>
+          )}
+        </div>
       )}
 
       {products !== null && products.length > 0 && (

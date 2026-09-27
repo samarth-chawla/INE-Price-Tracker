@@ -39,13 +39,13 @@ export default function HistoryTable({ rows }) {
           {rows.map((r) => (
             <tr key={r.id} className={`hist-row--${r.outcome}`}>
               <td className="hist-time">{formatTime(r.timestamp)}</td>
-              <td>{r.attemptNumber ?? '—'}</td>
-              <td>{r.outcome === 'success' && r.price !== null ? formatPrice(r.price) : '—'}</td>
-              <td>{r.outcome === 'success' ? (r.stock ?? '—') : '—'}</td>
+              <td>{r.attemptNumber ?? '-'}</td>
+              <td>{r.outcome === 'success' && r.price !== null ? formatPrice(r.price) : '-'}</td>
+              <td>{r.outcome === 'success' ? (r.stock ?? '-') : '-'}</td>
               <td>
                 <span className={`pill pill--${r.outcome}`}>{r.outcome}</span>
               </td>
-              <td className="hist-err">{r.errorMessage || '—'}</td>
+              <td className="hist-err">{r.errorMessage || '-'}</td>
             </tr>
           ))}
         </tbody>

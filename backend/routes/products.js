@@ -143,6 +143,39 @@ async function getProducts() {
 
 
 /**
+ * GET /api/products?page=N&limit=M
+ *
+ * Paginated catalogue slice for the browse view. Served from the same
+ * in-memory cache as search (no extra store scraping). Search endpoint
+ * below is unchanged.
+ *
+ * Example: GET /api/products?page=1&limit=30
+ */
+router.get('/', async (req, res) => {
+  const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+  const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 30, 1), 60);
+
+  try {
+    const products = await getProducts();
+    const total = products.length;
+    const totalPages = Math.max(Math.ceil(total / limit), 1);
+    const safePage = Math.min(page, totalPages);
+    const start = (safePage - 1) * limit;
+
+    return res.json({
+      results: products.slice(start, start + limit),
+      pagination: { page: safePage, limit, total, totalPages },
+    });
+  } catch (err) {
+    console.error('Catalogue error:', err.message);
+    return res.status(502).json({
+      error: 'Failed to retrieve products from the store. Please try again shortly.',
+      detail: err.message,
+    });
+  }
+});
+
+/**
  * GET /api/products/search?q=<term>
  *
  * Accepts a partial or full product name (also matches brand, category, SKU).
