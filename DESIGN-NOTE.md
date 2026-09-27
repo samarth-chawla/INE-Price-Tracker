@@ -64,9 +64,28 @@ parsing was deliberately rejected for the price path.
 No in-process scheduler. `POST /api/scrape/run` scrapes all active tracked
 products **sequentially** (rate-limit safe) under one shared `run_id`, with
 per-product failure isolation and an overlap guard (409 while busy).
-cron-job.org calls it every 2 hours with an `x-scrape-token` shared secret
+FastCron calls it every 2 hours with an `x-scrape-token` shared secret
 (`SCRAPE_RUN_TOKEN`). The manual `POST /api/tracked/:id/check` reuses the
 same runner for one product.
+
+## AI Mistakes and Corrections
+
+Real mistakes made during this build by a previous coding agent, found by
+inspecting the store bundle and live failure logs, and how they were fixed:
+
+1. **Single-click consent dismissal → multi-click consent handling.**
+   The handler clicked Allow/Reject once, but the store requires 1–3 clicks,
+   so ~30% of sessions left the overlay up and Playwright's wait-for-hidden
+   wedged the click until the 90s timeout (reproduced live). Fix: loop-click
+   until the scrim hides, plus `noWaitAfter` and a per-click timeout so one
+   stuck click fails fast into retry.
+2. **Naive price parsing → format-aware price parser.** Stripping non-digits
+   turned euro-format `₹35.286,00` into 3528600 (100× too big). Fix:
+   normalize full-width digits, drop decimal tails, then parse.
+3. **Blind option re-clicking → state-aware retry loop.** The loop re-clicked
+   a button that only exists in the idle panel phase, so slow/error phases
+   burned retries on a missing button. Fix: read panel state first — click
+   check, click the store's Retry control, or wait without clicking.
 
 ## Deployment shape
 

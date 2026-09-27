@@ -4,7 +4,7 @@
 
 **Live app:** [https://ine-price-tracker-rose.vercel.app/](https://ine-price-tracker-rose.vercel.app/)
 
-**API:** [http://ine-price-tracker-jez4.onrender.com/health](http://ine-price-tracker-jez4.onrender.com/health)
+**API:** [https://ine-price-tracker-jez4.onrender.com/api/health](https://ine-price-tracker-jez4.onrender.com/api/health)
 
 #### Track mock-store products ([https://demo.inelabteamdev.com](https://demo.inelabteamdev.com)):
 
@@ -42,6 +42,21 @@ Chromium), `PLAYWRIGHT_HEADED=1` (visible demo window, see below).
 
 Frontend: `VITE_API_BASE_URL` (production API base; dev uses the Vite `/api` proxy, so it stays unset locally).
 
+## Database setup
+
+Tables are created from versioned SQL (run once; safe to re-run):
+
+```bash
+psql "$SUPABASE_CONNECTION_STRING" -f backend/db/schema.sql
+```
+
+Per-attempt history (`retried` outcome, `attempt_number`, `run_id`) arrived
+via a follow-up migration — apply it on databases created before it existed:
+
+```bash
+psql "$SUPABASE_CONNECTION_STRING" -f backend/db/migrate-002-attempts.sql
+```
+
 ## Run
 
 ```bash
@@ -54,27 +69,28 @@ cd frontend
 npm run dev      # Vite dev server, proxies /api to the backend
 ```
 
-## Scraping schedule (cron-job.org, every 2 hours)
+## Scraping schedule (FastCron, every 2 hours)
 
 | Job | When | Target |
 |---|---|---|
-| Scrape | every 2 hours (`0 */2 * * *`) | `POST /api/scrape/run` + `x-scrape-token` header |
+| Scrape | every 2 hours (`0 */2 * * *`) | `POST https://ine-price-tracker-jez4.onrender.com/api/scrape/run` + `x-scrape-token` header |
 
 The run scrapes all active `tracked_products` sequentially under one shared
 `run_id` — one `scrape_logs` row per attempt (`success` / `retried` /
 `failed`). A product's failure never stops the rest; a second call while a
 run is busy gets 409. Manual per-product checks: `POST /api/tracked/:id/check`.
 
-### Setting up the cron job
+### Setting up the scheduled job (FastCron)
 
-1. Sign up at [cron-job.org](https://cron-job.org) and open **Cronjobs → Create**.
-2. Set **URL** to `https://<render-service>.onrender.com/api/scrape/run`
-   (e.g. `https://ine-price-tracker-jez4.onrender.com/api/scrape/run`).
+1. Sign up at [fastcron.com](https://www.fastcron.com) and open **Cron jobs → New cron job**.
+2. Set **URL** to `https://ine-price-tracker-jez4.onrender.com/api/scrape/run`.
 3. Set **Request method** to `POST`.
-4. Under **Headers**, add `x-scrape-token` with your production
+4. Under **Custom headers**, add `x-scrape-token` with your production
    `SCRAPE_RUN_TOKEN` as the value.
 5. Set **Schedule** to every 2 hours — cron expression `0 */2 * * *`.
-6. Save, then press **Run now** once and confirm a `200` response with
+6. Set the job **timeout to at least 10 minutes** (a full run over several
+   products takes minutes).
+7. Save, then trigger the job manually once and confirm a `200` response with
    `{ total, successful, failed }` plus fresh rows in Supabase before
    relying on the schedule.
 
